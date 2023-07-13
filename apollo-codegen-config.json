@@ -1,0 +1,29 @@
+{
+  "schemaNamespace" : "GitHubAPI",
+  "input" : {
+    "operationSearchPaths" : [
+      "**/*.graphql"
+    ],
+    "schemaSearchPaths" : [
+      "**/*.graphqls"
+    ]
+  },
+  "output" : {
+    "testMocks" : {
+      "none" : {
+      }
+    },
+    "schemaTypes" : {
+      "path" : "./GitHubAPI",
+      "moduleType" : {
+        "embeddedInTarget" : {
+          "name" : "RepositorySearcher"
+        }
+      }
+    },
+    "operations" : {
+      "inSchemaModule" : {
+      }
+    }
+  }
+}
