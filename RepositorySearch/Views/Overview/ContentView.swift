@@ -19,8 +19,8 @@ struct ContentView: View {
 			VStack {
 				if viewModel.isLoading {
 					ProgressView()
-						.scaleEffect(x: 2, y: 2)
-						.padding(.bottom, 16)
+						.controlSize(.large)
+						.padding(.bottom, 8)
 					Text("Data is loading...")
 				} else {
 					if let errorMessage = viewModel.errorMessage {
