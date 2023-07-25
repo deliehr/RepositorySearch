@@ -17,6 +17,7 @@ extension GitHubAPI {
               node {
                 __typename
                 ... on Repository {
+                  id
                   name
                   stargazerCount
                 }
@@ -102,10 +103,12 @@ extension GitHubAPI {
               typealias RootEntityType = GetRepositoriesQuery.Data.Search.Edge.Node
               static var __parentType: ApolloAPI.ParentType { GitHubAPI.Objects.Repository }
               static var __selections: [ApolloAPI.Selection] { [
+                .field("id", GitHubAPI.ID.self),
                 .field("name", String.self),
                 .field("stargazerCount", Int.self),
               ] }
 
+              var id: GitHubAPI.ID { __data["id"] }
               /// The name of the repository.
               var name: String { __data["name"] }
               /// Returns a count of how many stargazers there are on this object

@@ -26,7 +26,7 @@ struct ContentView: View {
 						Text("No data found for searchphrase 'topic:ios'")
 							.padding()
 					} else {
-						List(viewModel.repositories, id: \.name) { repository in
+						List(viewModel.repositories, id: \.id) { repository in
 							HStack {
 								Text(repository.name)
 								Spacer()
