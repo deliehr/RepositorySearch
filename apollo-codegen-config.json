@@ -17,7 +17,7 @@
       "path" : "./GitHubAPI",
       "moduleType" : {
         "embeddedInTarget" : {
-          "name" : "RepositorySearcher"
+          "name" : "RepositorySearch"
         }
       }
     },

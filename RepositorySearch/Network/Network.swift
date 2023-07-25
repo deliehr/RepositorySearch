@@ -45,7 +45,6 @@ class Network {
 					}
 
 				case .failure(let error):
-
 					self.gitHubRepositories.send(completion: .failure(error))
 			}
 		}

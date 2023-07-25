@@ -3,8 +3,8 @@ query GetRepositories {
     edges {
       node {
         ... on Repository {
-          name,
-          stargazerCount
+			name,
+			stargazerCount
         }
       }
     }

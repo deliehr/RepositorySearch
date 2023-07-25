@@ -23,6 +23,7 @@ class ContentViewModel: ObservableObject {
 				guard let self = self else { return }
 
 				self.isLoading = false
+
 				switch completion {
 					case .failure(let err):
 						self.errorMessage = err.localizedDescription
@@ -31,7 +32,7 @@ class ContentViewModel: ObservableObject {
 				}
 			}, receiveValue: { [weak self] newRepositories in
 				guard let self = self else { return }
-				
+
 				self.isLoading = false
 				self.repositories = newRepositories
 			})
