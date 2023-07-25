@@ -8,7 +8,11 @@
 import SwiftUI
 
 struct ContentView: View {
-	@StateObject private var viewModel = ContentViewModel()
+	@ObservedObject public var viewModel: BaseContentViewModel
+
+	init(viewModel: BaseContentViewModel) {
+		self.viewModel = viewModel
+	}
 
 	var body: some View {
 		NavigationView {
@@ -46,7 +50,14 @@ struct ContentView: View {
 }
 
 struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-		ContentView()
+	static var previews: some View {
+		ContentView(viewModel: DummyViewModel(isLoading: true))
+			.previewDisplayName("Loading")
+
+		ContentView(viewModel: DummyViewModel(isLoading: false, errorMessage: "Error Message"))
+			.previewDisplayName("Error")
+
+		ContentView(viewModel: ContentViewModel())
+			.previewDisplayName("Default")
     }
 }
