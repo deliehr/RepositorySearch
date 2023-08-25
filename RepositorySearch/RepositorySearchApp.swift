@@ -11,7 +11,7 @@ import SwiftUI
 struct RepositorySearchApp: App {
 	@StateObject private var viewModel = ContentViewModel()
 
-    var body: some Scene {
+	var body: some Scene {
 		WindowGroup {
             ContentView(viewModel: viewModel)
         }

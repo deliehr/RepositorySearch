@@ -5,7 +5,8 @@ query GetRepositories {
         ... on Repository {
 			id,
 			name,
-			stargazerCount
+			stargazerCount,
+			url
         }
       }
     }

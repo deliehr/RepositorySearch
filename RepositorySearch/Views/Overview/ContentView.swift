@@ -10,8 +10,12 @@ import SwiftUI
 struct ContentView: View {
 	@ObservedObject public var viewModel: BaseContentViewModel
 
-	init(viewModel: BaseContentViewModel) {
+	init(viewModel: ContentViewModel) {
 		self.viewModel = viewModel
+	}
+
+	init(dummyViewModel: DummyViewModel) {
+		viewModel = dummyViewModel
 	}
 
 	var body: some View {
@@ -31,11 +35,22 @@ struct ContentView: View {
 							.padding()
 					} else {
 						List(viewModel.repositories, id: \.id) { repository in
-							HStack {
-								Text(repository.name)
-								Spacer()
-								Text(String(repository.stargazerCount))
-								Image(systemName: "star.fill")
+							Button {
+								viewModel.repositoryTapped(repository)
+							} label: {
+								HStack {
+									VStack(alignment: .leading) {
+										Text(repository.name)
+
+										Text(repository.url)
+											.font(.system(size: 12))
+											.foregroundColor(.gray)
+									}
+
+									Spacer()
+									Text(String(repository.stargazerCount))
+									Image(systemName: "star.fill")
+								}
 							}
 						}
 						.refreshable {
@@ -46,18 +61,21 @@ struct ContentView: View {
 			}
 			.navigationTitle("Repository Search")
 		}
+		.onAppear {
+			viewModel.refreshRepositories()
+		}
 	}
 }
 
 struct ContentView_Previews: PreviewProvider {
 	static var previews: some View {
-		ContentView(viewModel: DummyViewModel(isLoading: true))
+		ContentView(dummyViewModel: DummyViewModel(isLoading: false, errorMessage: nil))
+			.previewDisplayName("Mock data")
+
+		ContentView(dummyViewModel: DummyViewModel(isLoading: true))
 			.previewDisplayName("Loading")
 
-		ContentView(viewModel: DummyViewModel(isLoading: false, errorMessage: "Error Message"))
+		ContentView(dummyViewModel: DummyViewModel(isLoading: false, errorMessage: "Error Message"))
 			.previewDisplayName("Error")
-
-		ContentView(viewModel: ContentViewModel())
-			.previewDisplayName("Default")
     }
 }

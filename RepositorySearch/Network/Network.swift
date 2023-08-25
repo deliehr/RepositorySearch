@@ -10,12 +10,12 @@ import Apollo
 import ApolloAPI
 import Combine
 
+typealias GitHubRepository = GitHubAPI.GetRepositoriesQuery.Data.Search.Edge.Node.AsRepository
+
 class Network {
 	static let shared = Network()
 
 	private var apollo: ApolloClient!
-
-	public let gitHubRepositories = PassthroughSubject<[GitHubAPI.GetRepositoriesQuery.Data.Search.Edge.Node.AsRepository],Error>()
 
 	private init() {
 		guard let url = URL(string: Constants.Network.graphBasePath) else { return }
@@ -31,22 +31,38 @@ class Network {
 		apollo = ApolloClient(networkTransport: transport, store: store)
 	}
 
-	func fetchGitHubRepositories() {
-		apollo.fetch(query: GitHubAPI.GetRepositoriesQuery()) { [weak self] result in
-			guard let self = self else { return }
+	func fetchGitHubRepositories() async throws -> [GitHubRepository] {
+		try await withCheckedThrowingContinuation { continuation in
+			_fetch { repositories, error in
+				if let error = error {
+					continuation.resume(throwing: error)
+					return
+				}
 
-			switch result {
-				case .success(let graphQLResult):
-
-					if let repos = graphQLResult.data?.search.edges?.compactMap({$0?.node?.asRepository}) {
-						self.gitHubRepositories.send(repos)
-					} else {
-						self.gitHubRepositories.send([])
-					}
-
-				case .failure(let error):
-					self.gitHubRepositories.send(completion: .failure(error))
+				if let repositories = repositories {
+					continuation.resume(returning: repositories)
+				} else {
+					continuation.resume(returning: [])
+				}
 			}
+		}
+	}
+
+	private func _fetch(completion: @escaping ([GitHubRepository]?,Error?)->Void) {
+		apollo.fetch(query: GitHubAPI.GetRepositoriesQuery()) { result in
+			switch result {
+			case .success(let graphQLResult):
+				if let repos = graphQLResult.data?.search.edges?.compactMap({$0?.node?.asRepository}) {
+					completion(repos,nil)
+					return
+				}
+
+			case .failure(let error):
+				completion(nil,error)
+				return
+			}
+
+			completion(nil,nil)
 		}
 	}
 }

@@ -20,6 +20,7 @@ extension GitHubAPI {
                   id
                   name
                   stargazerCount
+                  url
                 }
               }
             }
@@ -106,6 +107,7 @@ extension GitHubAPI {
                 .field("id", GitHubAPI.ID.self),
                 .field("name", String.self),
                 .field("stargazerCount", Int.self),
+                .field("url", GitHubAPI.URI.self),
               ] }
 
               var id: GitHubAPI.ID { __data["id"] }
@@ -113,6 +115,8 @@ extension GitHubAPI {
               var name: String { __data["name"] }
               /// Returns a count of how many stargazers there are on this object
               var stargazerCount: Int { __data["stargazerCount"] }
+              /// The HTTP URL for this repository
+				var url: GitHubAPI.URI { __data["url"] }
             }
           }
         }

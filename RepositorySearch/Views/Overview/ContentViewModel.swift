@@ -7,51 +7,37 @@
 
 import Foundation
 import Combine
+import UIKit
 
+@MainActor
 class BaseContentViewModel: ObservableObject {
 	@Published var isLoading = false
 	@Published var errorMessage: String? = nil
-	@Published var repositories = [GitHubAPI.GetRepositoriesQuery.Data.Search.Edge.Node.AsRepository]()
+	@Published var repositories = [GitHubRepository]()
 
 	func refreshRepositories() { }
+
+	func repositoryTapped(_ repository: GitHubRepository) {
+		guard let url = URL(string: repository.url), UIApplication.shared.canOpenURL(url) else { return }
+
+		UIApplication.shared.open(url)
+	}
 }
 
 class ContentViewModel: BaseContentViewModel {
-	private var subscriptions = Set<AnyCancellable>()
-
 	override init() {
 		super.init()
-
-		Network.shared.gitHubRepositories
-			.debounce(for: .milliseconds(300), scheduler: DispatchQueue.main)
-			.receive(on: DispatchQueue.main)
-			.sink(receiveCompletion: { [weak self] completion in
-				guard let self = self else { return }
-
-				self.isLoading = false
-
-				switch completion {
-					case .failure(let err):
-						self.errorMessage = err.localizedDescription
-					default:
-						break
-				}
-			}, receiveValue: { [weak self] newRepositories in
-				guard let self = self else { return }
-
-				self.isLoading = false
-				self.repositories = newRepositories
-			})
-			.store(in: &subscriptions)
-
-		refreshRepositories()
 	}
 
 	override func refreshRepositories() {
 		errorMessage = nil
 		isLoading = true
 
-		Network.shared.fetchGitHubRepositories()
+		Task {
+			repositories = try await Network.shared.fetchGitHubRepositories()
+
+			isLoading = false
+		}
 	}
 }
 
@@ -63,11 +49,11 @@ class DummyViewModel: BaseContentViewModel {
 		self.errorMessage = errorMessage
 
 		repositories = [
-			GitHubAPI.GetRepositoriesQuery.Data.Search.Edge.Node.AsRepository(_dataDict: .init(data: ["name": "flutter", "stargazerCount": 155271], fulfilledFragments: .init())),
-			GitHubAPI.GetRepositoriesQuery.Data.Search.Edge.Node.AsRepository(_dataDict: .init(data: ["name": "react-native", "stargazerCount": 110885], fulfilledFragments: .init())),
-			GitHubAPI.GetRepositoriesQuery.Data.Search.Edge.Node.AsRepository(_dataDict: .init(data: ["name": "ionic-framework", "stargazerCount": 49175], fulfilledFragments: .init())),
-			GitHubAPI.GetRepositoriesQuery.Data.Search.Edge.Node.AsRepository(_dataDict: .init(data: ["name": "fastlane", "stargazerCount": 37364], fulfilledFragments: .init())),
-			GitHubAPI.GetRepositoriesQuery.Data.Search.Edge.Node.AsRepository(_dataDict: .init(data: ["name": "sheetjs", "stargazerCount": 33215], fulfilledFragments: .init()))
+			GitHubRepository(_dataDict: .init(data: ["id": "a", "name": "flutter", "stargazerCount": 155271, "url": "https://www.github.com/flutter/flutter"], fulfilledFragments: .init())),
+			GitHubRepository(_dataDict: .init(data: ["id": "b", "name": "react-native", "stargazerCount": 110885, "url": "https://www.github.com/facebook/react-native"], fulfilledFragments: .init())),
+			GitHubRepository(_dataDict: .init(data: ["id": "c", "name": "ionic-framework", "stargazerCount": 49175, "url": "https://www.github.com/justjavac/free-programming-books-zh_CN"], fulfilledFragments: .init())),
+			GitHubRepository(_dataDict: .init(data: ["id": "d", "name": "fastlane", "stargazerCount": 37364, "url": "https://www.github.com/ionic-team/ionic-framework"], fulfilledFragments: .init())),
+			GitHubRepository(_dataDict: .init(data: ["id": "e", "name": "sheetjs", "stargazerCount": 33215, "url": "https://www.github.com/google/material-design-icons"], fulfilledFragments: .init()))
 		]
 	}
 }
